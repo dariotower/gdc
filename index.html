@@ -1,0 +1,1333 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GdC · Norte Estratégico</title>
+<style>
+:root{
+  --gdc-deep:#12321c;
+  --gdc-dark:#06170e;
+  --cta1:#8fd18a;
+  --cta2:#b6f0a8;
+  --text:#eaf5e7;
+  --muted:rgba(234,245,231,.78);
+
+  --card:rgba(255,255,255,.085);
+  --stroke:rgba(255,255,255,.16);
+  --shadow:0 22px 70px rgba(0,0,0,.45);
+  --radius:28px;
+  --focus:rgba(169,195,166,.30);
+
+  --tile:rgba(255,255,255,.06);
+  --tileStroke:rgba(255,255,255,.13);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:
+    radial-gradient(1100px 750px at 15% 20%, rgba(143,209,138,.18), transparent 62%),
+    radial-gradient(950px 700px at 85% 70%, rgba(169,195,166,.18), transparent 58%),
+    linear-gradient(135deg, var(--gdc-dark), var(--gdc-deep) 45%, #04130c);
+  color:var(--text);
+}
+
+.bg-sheen{
+  position:fixed; inset:-35%;
+  background:
+    radial-gradient(900px 650px at 30% 25%, rgba(182,240,168,.10), transparent 60%),
+    radial-gradient(800px 600px at 75% 70%, rgba(143,209,138,.08), transparent 58%),
+    conic-gradient(from 220deg at 50% 50%,
+      rgba(18,50,28,.42),
+      rgba(95,143,100,.14),
+      rgba(169,195,166,.10),
+      rgba(47,93,58,.18),
+      rgba(18,50,28,.42)
+    );
+  filter: blur(34px) saturate(1.06);
+  opacity:.55;
+  animation: drift 16s ease-in-out infinite alternate;
+  transform: translate3d(0,0,0);
+  z-index:-2;
+}
+@keyframes drift{
+  0%{transform:translate(-3%,-2%) rotate(-1deg) scale(1.02)}
+  100%{transform:translate(3%,2%) rotate(1deg) scale(1.05)}
+}
+@media (prefers-reduced-motion: reduce){ .bg-sheen{animation:none} }
+
+.card{
+  width:min(460px,92vw);
+  border-radius:var(--radius);
+  background:var(--card);
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(26px);
+  -webkit-backdrop-filter:blur(26px);
+  padding:34px 26px 22px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Variant widths */
+.card.mapMode{
+  width:min(900px, 94vw);
+  padding:28px 30px 20px;
+}
+@media (max-width: 560px){
+  .card.mapMode{
+    width:94vw;
+    padding:22px 18px 16px;
+  }
+}
+
+
+.brand img{
+  width:min(210px,62vw);
+  margin-bottom:16px;
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.45));
+}
+
+h2{
+  font-size:20px;
+  margin:0 0 10px;
+  letter-spacing:-.01em;
+}
+p{
+  font-size:14px;
+  line-height:1.45;
+  color:var(--muted);
+  margin:0 0 18px;
+}
+
+label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+  display:block;
+  margin:0 0 6px;
+}
+
+input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.26);
+  color:var(--text);
+  margin:0 0 14px;
+  outline:none;
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+input:focus{
+  border-color: rgba(182,240,168,.75);
+  box-shadow:0 0 0 5px var(--focus);
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:18px;
+  font-weight:900;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--cta1),var(--cta2));
+  color:#04130c;
+  transition:transform .18s ease, box-shadow .2s ease, filter .2s ease;
+  position:relative;
+  overflow:hidden;
+}
+button:hover{
+  transform:translateY(-2px);
+  filter:saturate(1.06) brightness(1.02);
+  box-shadow:0 20px 60px rgba(182,240,168,.35);
+}
+button::after{
+  content:"";
+  position:absolute;
+  inset:-80%;
+  background: radial-gradient(closest-side, rgba(255,255,255,.35), transparent 70%);
+  transform: translate(-36%, -18%) rotate(12deg);
+  opacity:0;
+  transition:opacity .25s ease;
+  pointer-events:none;
+}
+button:hover::after{opacity:.55}
+
+.footer{
+  margin-top:22px;
+  font-size:12px;
+  opacity:.7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.footer img{
+  height:32px;
+  width:auto;
+}
+
+.screen{
+  display:none;
+  animation: screenIn .38s ease both;
+}
+.screen.active{ display:block; }
+@keyframes screenIn{
+  from{ opacity:0; transform:translateY(10px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+/* Map */
+.mapHead{
+  text-align:left;
+  margin: 2px 0 14px;
+}
+.mapHead .kicker{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color: rgba(234,245,231,.75);
+  margin-bottom:6px;
+}
+.mapHead h3{
+  margin:0;
+  font-size:18px;
+  letter-spacing:-.01em;
+}
+.mapGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr)); /* siempre 3x3 */
+  gap:16px;
+  margin-top:16px;
+}
+
+/* En pantallas chicas mantenemos 3 columnas, ajustando tamaño tipográfico y espacio */
+@media (max-width: 560px){
+  .mapGrid{ gap:10px; }
+}
+}
+
+.tile{
+  border-radius:22px;
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.14);
+  padding:16px 16px 14px;
+  cursor:pointer;
+  transition: transform .16s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease, filter .22s ease;
+  min-height:120px;
+  position:relative;
+  overflow:hidden;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tile::before{
+  content:"";
+  position:absolute;
+  inset:-80%;
+  background: radial-gradient(closest-side, rgba(182,240,168,.22), transparent 70%);
+  transform: translate(-30%, -18%) rotate(12deg);
+  opacity:.0;
+  transition: opacity .25s ease;
+  pointer-events:none;
+}
+
+.tile::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(600px 220px at 30% 10%, rgba(255,255,255,.10), transparent 55%);
+  opacity:.55;
+  pointer-events:none;
+}
+
+.tile:hover{
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 54px rgba(0,0,0,.30);
+  border-color: rgba(182,240,168,.42);
+  filter: saturate(1.05) brightness(1.02);
+}
+
+.tile:hover::before{ opacity:1; }
+
+.tile:active{
+  transform: translateY(-1px) scale(.995);
+}
+
+.num{
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:.14em;
+  opacity:.86;
+  color: rgba(234,245,231,.85);
+}
+.tile h4{
+  margin:10px 0 0;
+  font-size:15px;
+  line-height:1.15;
+  letter-spacing:-.01em;
+}
+@media (max-width: 560px){
+  .tile{ min-height:98px; padding:12px 12px 10px; border-radius:20px; }
+  .tile h4{ font-size:13px; }
+}
+
+.topRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.smallBtn{
+  width:auto;
+  padding:10px 12px;
+  border-radius:14px;
+  font-weight:800;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  color: rgba(234,245,231,.86);
+  cursor:pointer;
+  transition: transform .16s ease, background .2s ease, border-color .2s ease;
+}
+.smallBtn:hover{
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.10);
+  border-color: rgba(182,240,168,.28);
+}
+
+/* Gamification UI */
+.gamiRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:18px;
+  background: rgba(0,0,0,.12);
+  border:1px solid rgba(255,255,255,.10);
+}
+.gamiLeft{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:1;
+}
+.badgeLevel{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:62px;
+  height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  font-weight:900;
+  letter-spacing:.06em;
+  color:#04130c;
+  background: linear-gradient(135deg, var(--cta1), var(--cta2));
+  overflow:hidden;
+  box-shadow: 0 14px 34px rgba(182,240,168,.18);
+}
+.badgeLevel .spark{
+  position:absolute;
+  inset:-60%;
+  background: radial-gradient(closest-side, rgba(255,255,255,.40), transparent 70%);
+  transform: translate(-35%, -20%) rotate(10deg);
+  opacity:.35;
+  animation: spark 2.8s ease-in-out infinite;
+}
+@keyframes spark{
+  0%,100%{ opacity:.25; transform: translate(-35%, -20%) rotate(10deg); }
+  50%{ opacity:.45; transform: translate(-30%, -10%) rotate(14deg); }
+}
+.gamiTrack{
+  height:10px;
+  flex:1;
+  border-radius:999px;
+  background: rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.gamiFill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background: linear-gradient(90deg, var(--cta1), var(--cta2));
+  transition: width .35s ease;
+}
+.gamiDots{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;
+}
+.gamiDots span{
+  width:10px; height:10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.12);
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.gamiDots span.on{
+  background: rgba(182,240,168,.85);
+  border-color: rgba(182,240,168,.45);
+  transform: scale(1.12);
+}
+@media (max-width: 560px){
+  .gamiRow{ padding:8px 10px; gap:10px; }
+  .gamiDots span{ width:8px; height:8px; }
+}
+
+
+/* === MAP LAYOUT (1-2-3) === */
+.mapLayout{
+  display:grid;
+  grid-template-columns: 320px 1fr;
+  gap:18px;
+  align-items:stretch;
+  margin-top:6px;
+}
+
+.mapSide{
+  text-align:left;
+  border-radius:22px;
+  background: rgba(0,0,0,.10);
+  border:1px solid rgba(255,255,255,.10);
+  padding:18px 18px 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height: 520px;
+}
+
+.brandSide img{
+  width: 100%;
+  max-width: 240px;
+  margin: 0;
+}
+
+.sideWelcome .kicker{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color: rgba(234,245,231,.75);
+  margin:14px 0 8px;
+}
+.sideWelcome h3{
+  margin:0;
+  font-size:18px;
+  letter-spacing:-.01em;
+}
+.sideWelcome p{
+  margin:10px 0 0;
+  font-size:14px;
+}
+
+.footerSide{
+  margin-top:16px;
+  justify-content:flex-start;
+  opacity:.65;
+}
+
+.mapMain{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  min-width:0;
+}
+
+.mapTop{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.gamiRowMain{
+  margin-top:0;
+}
+
+/* Make tiles square + larger, keep 3x3 */
+.mapGridMain{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap:16px;
+}
+
+.tile{
+  min-height: unset !important;
+  aspect-ratio: 1 / 1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  padding:18px 18px 16px;
+}
+
+/* Stronger hover / gamification */
+.tile{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow: 0 10px 26px rgba(0,0,0,.18);
+}
+.tile::after{
+  background:
+    radial-gradient(700px 260px at 30% 8%, rgba(255,255,255,.14), transparent 55%);
+  opacity:.6;
+}
+.tile:hover{
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 26px 64px rgba(0,0,0,.34);
+  border-color: rgba(182,240,168,.55);
+}
+.tile:hover::before{ opacity:1; }
+.tile:hover::after{ opacity:.8; }
+
+/* Animated border glow on hover */
+.tile .ring{
+  position:absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events:none;
+  opacity:0;
+  background:
+    conic-gradient(from 180deg,
+      rgba(182,240,168,.0),
+      rgba(182,240,168,.55),
+      rgba(255,255,255,.16),
+      rgba(182,240,168,.45),
+      rgba(182,240,168,.0)
+    );
+  filter: blur(10px);
+  transition: opacity .25s ease;
+}
+.tile:hover .ring{ opacity:.9; }
+
+/* Give titles more presence */
+.tile h4{
+  font-size:16px;
+  line-height:1.12;
+}
+.num{
+  font-size:12px;
+}
+
+/* Mobile stacking: 1, 2, 3 top-down */
+@media (max-width: 960px){
+  .card.mapMode{
+    width:min(980px, 94vw);
+  }
+  .mapLayout{
+    grid-template-columns: 1fr;
+  }
+  .mapSide{
+    min-height: unset;
+  }
+  .mapTop{
+    justify-content:flex-start;
+  }
+}
+@media (max-width: 560px){
+  .mapGridMain{ gap:10px; }
+  .tile{ padding:12px 12px 10px; border-radius:20px; }
+  .tile h4{ font-size:13px; }
+}
+
+
+
+
+/* === MODAL === */
+body.modalOpen main.card{
+  filter: blur(10px) saturate(.92);
+  transform: scale(.995);
+}
+body.modalOpen main.card{ pointer-events:none; }
+
+.modalOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.52);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .22s ease;
+  z-index:9999;
+}
+.modalOverlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.modalCard{
+  width:min(560px, 92vw);
+  background:rgba(18,50,28,.95);
+  border-radius:24px;
+  padding:22px 22px 20px;
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+  animation: modalIn .28s ease both;
+  max-height: 86vh;
+  display:flex;
+  flex-direction:column;
+}
+@keyframes modalIn{
+  from{ transform:translateY(18px); opacity:0; }
+  to{ transform:translateY(0); opacity:1; }
+}
+
+.modalHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+}
+.modalHeader h3{
+  margin:0;
+  font-size:18px;
+  letter-spacing:-.01em;
+}
+.modalClose{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(234,245,231,.85);
+  width:38px; height:38px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:.2s ease;
+}
+.modalClose:hover{
+  transform: translateY(-1px);
+  border-color: rgba(182,240,168,.35);
+  background: rgba(182,240,168,.10);
+}
+
+.modalBody{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  overflow:auto;
+  padding-bottom: 18px;
+}
+
+.modalLabel{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:10px;
+  opacity:.7;
+}
+
+.modalHint{
+  margin:-4px 0 10px;
+  font-size:13px;
+  line-height:1.35;
+  color: rgba(234,245,231,.75);
+}
+
+.choices{
+  display:grid;
+  gap:10px;
+}
+.choice{
+  background:rgba(255,255,255,.05);
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  transition:.2s ease;
+}
+.choice:hover{
+  background:rgba(182,240,168,.12);
+  border-color:rgba(182,240,168,.4);
+}
+
+.choice input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* Hidden section (only when "Otro") */
+.abiertaWrap{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transition: max-height .22s ease, opacity .22s ease;
+}
+.abiertaWrap.show{ max-height: 900px; opacity:1; }
+
+textarea maxlength="5000" style="min-height:180px; height:220px; resize:vertical; overflow-y:auto;"{
+  width:100%;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+  color:#eaf5e7;
+  outline:none;
+
+  /* consistent typography */
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+
+  padding: 14px 14px;
+  min-height: 220px;
+  resize: vertical;
+}
+textarea::placeholder{
+  color: rgba(234,245,231,.55);
+}
+textarea:focus{
+  border-color: rgba(182,240,168,.70);
+  box-shadow:0 0 0 4px rgba(169,195,166,.22);
+}
+@media (max-width: 560px){
+  textarea{ min-height: 260px; font-size:16px; }
+}
+
+
+@media (max-width:560px){
+  .modalCard{ padding:18px 16px 16px; }
+}
+
+
+}
+
+
+/* === MODAL (gamification upgrade) === */
+.modalCard{
+  background:
+    radial-gradient(900px 340px at 20% 0%, rgba(182,240,168,.10), transparent 55%),
+    rgba(18,50,28,.95);
+}
+
+.modalHUD{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+  margin-bottom:14px;
+}
+.hudBadge{
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  opacity:.85;
+}
+.hudText{
+  margin-top:6px;
+  font-size:14px;
+  color: rgba(234,245,231,.78);
+}
+.hudPill{
+  font-size:12px;
+  font-weight:800;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.22);
+  color: rgba(234,245,231,.78);
+  white-space:nowrap;
+}
+.hudPill.ok{
+  border-color: rgba(182,240,168,.45);
+  background: rgba(182,240,168,.12);
+  color: rgba(234,245,231,.92);
+}
+
+/* Scroll behavior */
+.modalBody{
+  scroll-behavior:smooth;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right:6px;
+}
+/* subtle scrollbar */
+.modalBody::-webkit-scrollbar{ width:8px; }
+.modalBody::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.12);
+  border-radius:999px;
+}
+.modalBody::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,.18); }
+
+.scrollHint{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 10px;
+  margin: -4px 0 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.12);
+  color: rgba(234,245,231,.58);
+  font-size: 12px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: .22s ease;
+}
+.scrollHint.show{ opacity:1; transform: translateY(0); }
+
+/* Choices become "level cards" */
+.choice{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 14px;
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+}
+.choice::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  background: radial-gradient(600px 240px at 20% 10%, rgba(255,255,255,.10), transparent 60%);
+  opacity:.55;
+  pointer-events:none;
+}
+.choice input{
+  transform: scale(1.05);
+  accent-color: rgba(182,240,168,.95);
+}
+.choice:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 16px 46px rgba(0,0,0,.28);
+}
+.choice.selected{
+  border-color: rgba(182,240,168,.70);
+  background: rgba(182,240,168,.12);
+  box-shadow: 0 0 0 3px rgba(182,240,168,.14), 0 16px 46px rgba(0,0,0,.22);
+}
+
+/* Reveal section animation (only for Otro) */
+.abiertaWrap{
+  border-top: 1px solid rgba(255,255,255,.10);
+  padding-top: 14px;
+  margin-top: 10px;
+}
+.abiertaWrap .modalLabel{ font-weight:900; }
+.abiertaWrap .modalHint{ color: rgba(234,245,231,.70); }
+.abiertaWrap.show{
+  animation: popIn .26s ease both;
+}
+@keyframes popIn{
+  from{ opacity:0; transform: translateY(10px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* Sticky save as "action bar" */
+.modalSave{
+  border-radius:18px;
+  font-size:15px;
+}
+
+
+/* Modal layout fix (no cut button) */
+.modalCard{
+  max-height: 88vh;
+  display:flex;
+  flex-direction:column;
+}
+.modalBody{
+  flex:1;
+  overflow:auto;
+  padding-right:6px;
+}
+.modalFooter{
+  padding-top:12px;
+  background: linear-gradient(to top, rgba(18,50,28,.98), rgba(18,50,28,.72));
+  border-top: 1px solid rgba(255,255,255,.10);
+  margin-top: 10px;
+}
+.modalSave{
+  width:100%;
+  padding:14px 18px;
+  border-radius:18px;
+  border:none;
+  font-weight:900;
+  font-size:15px;
+  background:linear-gradient(135deg, var(--cta1), var(--cta2));
+  color:#04130c;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.modalSave:hover{
+  transform: translateY(-1px);
+  box-shadow:0 18px 44px rgba(182,240,168,.26);
+}
+
+
+.modalHeader{ margin-bottom:12px; }
+.modalHUD{ margin-bottom:12px; }
+.choices{ gap:12px; }
+.choice{ padding:16px; }
+.choice:hover{ transform: translateY(-1px); }
+
+
+/* Choice text sizing and layout */
+.choice{
+  justify-content: space-between;
+}
+.choice{
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+@media (max-width: 560px){
+  .modalCard{ width: min(620px, 94vw); }
+  .choice{ font-size: 15px; padding: 18px 16px; }
+  .modalHeader h3{ font-size: 18px; }
+  .hudText{ font-size: 15px; }
+}
+
+
+.choice.saved{
+  border-color: rgba(182,240,168,.85);
+  box-shadow: 0 0 0 4px rgba(182,240,168,.18), 0 16px 46px rgba(0,0,0,.22);
+}
+
+</style>
+</head>
+<body>
+  <div class="bg-sheen" aria-hidden="true"></div>
+
+  <main class="card" role="application" aria-label="GdC">
+    <section class="screen active" id="screen-login" aria-label="Ingreso">
+      <div class="brand">
+        <img src="assets/gdc-identidad-blanca.png" alt="GdC Norte Estratégico">
+      </div>
+
+      <h2>Antes de lanzar tu cambio, pensemos cómo se va a adoptar.</h2>
+      <p>
+        Este espacio te ayuda a ordenar tu cambio para que tenga más chances de adoptarse.
+        <br>
+        No es una evaluación. Es una herramienta para mejorar tu impacto.
+      </p>
+
+      <form id="loginForm" novalidate>
+        <label for="name">Nombre</label>
+        <input id="name" name="name" type="text" placeholder="Tu nombre" autocomplete="name" required>
+
+        <label for="email">Mail</label>
+        <input id="email" name="email" type="email" placeholder="tunombre@mail.com" autocomplete="email" required>
+
+        <button type="submit" id="startBtn">Comenzar</button>
+      </form>
+
+      <div class="footer">
+        <span>Impulsado por</span>
+        <img src="assets/distrocuyo.png" alt="Distrocuyo">
+      </div>
+    </section>
+
+    
+    <section class="screen" id="screen-mapa" aria-label="Mapa 9 puntos">
+      <div class="mapLayout">
+        <!-- 1) Sidebar -->
+        <aside class="mapSide" aria-label="Identidad y bienvenida">
+          <div class="brand brandSide">
+            <img src="assets/gdc-identidad-blanca.png" alt="GdC Norte Estratégico">
+          </div>
+
+          <div class="sideWelcome">
+            <div class="kicker" id="hello">Mapa 9 puntos</div>
+            <h3>Estándar General</h3>
+            <p>
+              Todo cambio relevante en Distrocuyo debe mapearse bajo estos 9 puntos.
+            </p>
+          </div>
+
+          <div class="footer footerSide">
+            <span>Impulsado por</span>
+            <img src="assets/distrocuyo.png" alt="Distrocuyo">
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <section class="mapMain" aria-label="Progreso y mapa">
+          <div class="mapTop">
+            <button class="smallBtn" id="backBtn" type="button">← Volver</button>
+          </div>
+
+          <!-- 2) Progreso -->
+          <div class="gamiRow gamiRowMain" aria-label="Progreso">
+            <div class="gamiLeft">
+              <div class="badgeLevel" title="Progreso de tu mapa">
+                <span class="spark"></span>
+                <span id="gamiText">0/9</span>
+              </div>
+              <div class="gamiTrack" aria-hidden="true">
+                <div class="gamiFill" id="gamiFill"></div>
+              </div>
+            </div>
+            <div class="gamiDots" id="gamiDots" aria-hidden="true"></div>
+          </div>
+
+          <!-- 3) Grid -->
+          <div class="mapGrid mapGridMain" id="mapGrid" aria-label="Nueve puntos"></div>
+</section>
+      </div>
+    </section>
+
+  
+  </main>
+
+<script>
+  const screens = {
+    login: document.getElementById("screen-login"),
+    mapa: document.getElementById("screen-mapa")
+  };
+
+  const card = document.querySelector('.card');
+  function show(which){
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[which].classList.add('active');
+    card.classList.toggle('mapMode', which === 'mapa');
+  }
+
+  const form = document.getElementById("loginForm");
+  const startBtn = document.getElementById("startBtn");
+
+  const TITLES = [
+    "¿Qué cambia?",
+    "¿Por qué cambia?",
+    "¿Para qué cambia?",
+    "¿A quién impacta?",
+    "¿Qué se espera que hagan distinto?",
+    "Riesgos culturales",
+    "Mensajes clave",
+    "¿Cómo lo vas a desplegar?",
+    "Indicadores de adopción"
+  ];
+
+  
+  let mapaBuilt = false;
+  const KEY_DONE = "gdc_map_done_v1"; // array of numbers 1..9
+
+  function getDone(){
+    try { return JSON.parse(localStorage.getItem(KEY_DONE) || "[]"); }
+    catch(e){ return []; }
+  }
+  function setDone(arr){
+    localStorage.setItem(KEY_DONE, JSON.stringify(arr));
+  }
+
+  function paintProgress(){
+    const done = getDone();
+    const pct = Math.round((done.length/9)*100);
+    const txt = document.getElementById("gamiText");
+    const fill = document.getElementById("gamiFill");
+    if(txt) txt.textContent = `${done.length}/9`;
+    if(fill) fill.style.width = pct + "%";
+
+    const dots = Array.from(document.querySelectorAll("#gamiDots span"));
+    dots.forEach((d, i) => d.classList.toggle("on", done.includes(i+1)));
+  }
+
+  function initMapa(){
+    if(mapaBuilt) return;
+    mapaBuilt = true;
+
+    const grid = document.getElementById("mapGrid");
+    grid.innerHTML = "";
+
+    // Dots
+    const dotsWrap = document.getElementById("gamiDots");
+    dotsWrap.innerHTML = "";
+    for(let i=0;i<9;i++){
+      const s = document.createElement("span");
+      dotsWrap.appendChild(s);
+    }
+
+    TITLES.forEach((t, i) => {
+      const n = i+1;
+      const nn = String(n).padStart(2,"0");
+
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.style.textAlign = "left";
+      tile.style.animation = "screenIn .35s ease both";
+      tile.style.animationDelay = (i*0.03) + "s";
+      tile.setAttribute("role","button");
+      tile.setAttribute("tabindex","0");
+      tile.innerHTML = `<span class="ring" aria-hidden="true"></span><div class="num">${nn}</div><h4>${t}</h4>`;
+
+      const click = () => {
+        const done = getDone();
+        if(!done.includes(n)) done.push(n);
+        setDone(done);
+        paintProgress();
+        tile.animate([
+          { transform:"translateY(-4px) scale(1.015)" },
+          { transform:"translateY(0) scale(1)" }
+        ], { duration: 240, easing:"ease-out" });
+      };
+
+      tile.addEventListener("click", click);
+      tile.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); click(); }
+      });
+
+      grid.appendChild(tile);
+    });
+
+    const hello = document.getElementById("hello");
+    const name = localStorage.getItem("gdc_user_name");
+    if(name) hello.textContent = `Hola ${name} · Mapa 9 puntos`;
+
+    paintProgress();
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = (form.name.value || "").trim();
+    const email = (form.email.value || "").trim();
+    const okEmail = /^\S+@\S+\.\S+$/.test(email);
+
+    if(!name){ form.name.focus(); return; }
+    if(!okEmail){ form.email.focus(); return; }
+
+    localStorage.setItem("gdc_user_name", name);
+    localStorage.setItem("gdc_user_email", email);
+
+    startBtn.disabled = true;
+    startBtn.textContent = "Entrando…";
+    setTimeout(() => {
+      startBtn.disabled = false;
+      startBtn.textContent = "Comenzar";
+      initMapa();
+      show("mapa");
+    }, 220);
+  });
+
+  document.getElementById("backBtn").addEventListener("click", () => show("login"));
+
+  // Prefill if exists
+  const existingName = localStorage.getItem("gdc_user_name");
+  const existingEmail = localStorage.getItem("gdc_user_email");
+  if(existingName) document.getElementById("name").value = existingName;
+  if(existingEmail) document.getElementById("email").value = existingEmail;
+</script>
+<script>
+document.addEventListener("click", (e)=>{
+  const tile = e.target.closest(".tile");
+  if(!tile) return;
+  const num = tile.querySelector(".num")?.textContent.trim();
+  if(num==="01") openModal();
+});
+</script>
+
+<!-- Modal Punto 1 -->
+<div class="modalOverlay" id="modalOverlay" aria-hidden="true">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modalHeader">
+      <h3 id="modalTitle">1. ¿Qué cambia?</h3>
+      <button class="modalClose" id="modalClose" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modalHUD" aria-label="Progreso del mapeo">
+      <div class="hudLeft">
+        <div class="hudBadge">Punto <strong>1</strong> / 9</div>
+        <div class="hudText">Seleccioná un tipo de cambio</div>
+      </div>
+      <div class="hudRight">
+        <div class="hudPill" id="hudPill" aria-live="polite">Sin completar</div>
+      </div>
+    </div>
+
+    <div class="modalBody" id="modalBody">
+      <div class="scrollHint" id="scrollHint" aria-hidden="true">Deslizá para ver más</div>
+      <div class="modalSection">
+        <div class="modalLabel">Tipo de cambio</div>
+        <div class="choices" role="radiogroup" aria-label="Tipo de cambio">
+          <label class="choice"><input type="radio" name="tipoCambio" value="Proceso"> Proceso</label>
+          <label class="choice"><input type="radio" name="tipoCambio" value="Sistema"> Sistema / herramienta</label>
+          <label class="choice"><input type="radio" name="tipoCambio" value="Rol"> Rol / estructura</label>
+          <label class="choice"><input type="radio" name="tipoCambio" value="Cultural"> Práctica cultural</label>
+          <label class="choice"><input type="radio" name="tipoCambio" value="Otro" id="otroRadio"> Otro</label>
+        </div></div>
+<div class="modalSection abiertaWrap" id="abiertaWrap">
+        <div class="modalLabel">✍ Abierta clave</div>
+        <div class="modalHint">Describí el cambio en una frase clara y comprensible para cualquier persona de la compañía.</div>
+        <textarea id="descripcionCambio" placeholder="Describí el cambio en una frase clara y comprensible para cualquier persona de la compañía."></textarea>
+      </div>
+      <div class="modalFooter">
+        <button class="modalSave" id="modalSave" type="button">Guardar</button>
+      </div>
+      <div style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// === MODAL LOGIC (Punto 1) ===
+const modal = document.getElementById("modalOverlay");
+const modalClose = document.getElementById("modalClose");
+const modalSave = document.getElementById("modalSave");
+const otroRadio = document.getElementById("otroRadio");
+const abiertaWrap = document.getElementById("abiertaWrap");
+const descripcionCambio = document.getElementById("descripcionCambio");
+
+const modalBody = document.getElementById("modalBody");
+const hudPill = document.getElementById("hudPill");
+const scrollHint = document.getElementById("scrollHint");
+
+function setHud(text, ok=false){
+  if(!hudPill) return;
+  hudPill.textContent = text;
+  hudPill.classList.toggle("ok", !!ok);
+}
+function updateChoiceSelectedUI(){
+  document.querySelectorAll(".choice").forEach(lbl=>{
+    const inp = lbl.querySelector("input");
+    lbl.classList.toggle("selected", !!inp?.checked);
+  });
+}
+function maybeShowScrollHint(){
+  if(!modalBody || !scrollHint) return;
+  const needs = modalBody.scrollHeight > modalBody.clientHeight + 6;
+  scrollHint.classList.toggle("show", needs);
+}
+
+
+function resetModalUI(){
+  // hide conditional parts
+  abiertaWrap.classList.remove("show");
+  if(descripcionCambio) descripcionCambio.value = "";
+  // keep radios as-is (optional). If you want: clear selection:
+  // document.querySelectorAll('input[name="tipoCambio"]').forEach(r=>r.checked=false);
+}
+
+function openModal(){
+  modal.classList.add("active");
+  document.body.classList.add("modalOpen");
+  updateChoiceSelectedUI();
+  if(otroRadio.checked){
+    abiertaWrap.classList.add("show");
+    setTimeout(()=>descripcionCambio?.focus(), 80);
+    setHud("Completar texto", false);
+  }else{
+    abiertaWrap.classList.remove("show");
+    setHud("Elegí una opción", false);
+  }
+  setTimeout(maybeShowScrollHint, 120);
+}
+
+function closeModal(){
+  modal.classList.remove("active");
+  document.body.classList.remove("modalOpen");
+}
+
+modalClose.addEventListener("click", closeModal);
+modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+modalBody?.addEventListener('scroll', ()=>{
+  if(!scrollHint) return;
+  scrollHint.classList.toggle('show', modalBody.scrollTop < 6 && (modalBody.scrollHeight > modalBody.clientHeight + 6));
+});
+
+// Toggle conditional UI on selection
+document.querySelectorAll('input[name="tipoCambio"]').forEach(r=>{
+  r.addEventListener("change", ()=>{
+    updateChoiceSelectedUI();
+    if(r.value === "Otro"){
+      abiertaWrap.classList.add("show");
+      setHud("Completá la frase", false);
+      setTimeout(()=>{
+        descripcionCambio?.focus();
+        // bring the writing area into view smoothly
+        abiertaWrap.scrollIntoView({behavior:'smooth', block:'start'});
+        maybeShowScrollHint();
+      }, 120);
+    }else{
+      abiertaWrap.classList.remove("show");
+      if(descripcionCambio) descripcionCambio.value = "";
+      setHud(`Listo: ${r.closest('label')?.innerText?.trim() || r.value}`, true);
+      setTimeout(maybeShowScrollHint, 120);
+    }
+  });
+});
+
+modalSave.addEventListener("click", ()=>{
+  const selectedInput = document.querySelector('input[name="tipoCambio"]:checked');
+  const selected = selectedInput?.value;
+
+  // Soft validation
+  if(!selected){
+    setHud("Elegí una opción", false);
+    return;
+  }
+  if(selected === "Otro"){
+    const val = (descripcionCambio?.value || "").trim();
+    if(!val){
+      setHud("Te falta escribir la frase", false);
+      const card = document.querySelector('.modalCard');
+      card?.animate([
+        {transform:'translateX(0)'},
+        {transform:'translateX(-6px)'},
+        {transform:'translateX(6px)'},
+        {transform:'translateX(0)'}
+      ], {duration:260, easing:'ease-in-out'});
+      descripcionCambio?.focus();
+      return;
+    }
+  }
+
+  // Mark "saved" (only on save)
+  document.querySelectorAll(".choice").forEach(c=>c.classList.remove("saved"));
+  const lbl = selectedInput?.closest("label");
+  if(lbl) lbl.classList.add("saved");
+
+  setHud("Guardado ✓", true);
+  setTimeout(closeModal, 180);
+});
+
+// Hook tile 01 directly (avoid global click side-effects)
+function bindTile01(){
+  const grid = document.getElementById("mapGrid");
+  if(!grid) return;
+  const tiles = Array.from(grid.querySelectorAll(".tile"));
+  const t01 = tiles.find(t => (t.querySelector(".num")?.textContent.trim() === "01"));
+  if(!t01) return;
+
+  // Remove prior handlers that may exist in this build
+  t01.addEventListener("click", (e)=>{
+    // let the tile gamification click still happen; open modal after a tiny delay
+    setTimeout(openModal, 60);
+  });
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+  // map is built on demand; patch initMapa to call bindTile01 after build
+  const originalInit = window.initMapa;
+  if(typeof originalInit === "function"){
+    window.initMapa = function(){
+      const r = originalInit.apply(this, arguments);
+      bindTile01();
+      return r;
+    }
+  }
+});
+</script>
+
+</body>
+</html>
